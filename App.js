@@ -8,7 +8,7 @@ import {
   Image,
   ActivityIndicator,
   PermissionsAndroid,
-  BackHandler, StatusBar,
+  BackHandler, StatusBar, Dimensions,
 } from 'react-native';
 import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
 import Geolocation from 'react-native-geolocation-service';
@@ -39,6 +39,8 @@ import NetInfo from "@react-native-community/netinfo";
 import CryptoJS from "react-native-crypto-js";
 import {readToken} from './src/storage';
 import Resultat from './src/Resultat';
+import ImagePicker from 'react-native-image-crop-picker';
+
 const secretKey="Sens2022Things"
 
 //FIXER L'ORIENTATION DE L'APPLICATION
@@ -60,7 +62,7 @@ export default class App extends Component {
       imageSrc:'',
       imageSrcqr:'',
       disableCamera:false,
-      step:0,
+      step:2,
       nfcEnabled:true,
       permissions:false,
       tagID:'',
@@ -77,7 +79,11 @@ export default class App extends Component {
       etat:0, // 0 : search for reading; 1 : ecriture en cours ; 2 : Ecriture Terminée
       token:"",
       readMode:false,
-      reponse:{}
+      reponse:{},
+      image: '',
+      croppedImage: '',
+      croppedBarcode: '',
+      type: 'Diplome'
 
     }
   }
@@ -161,7 +167,7 @@ export default class App extends Component {
       Toast.show("Activer NFC")
     }
   }
-  componentWillUnmount(): void {
+  componentWillUnmount() {
 
     clearInterval(nfcListener)
   }
@@ -206,6 +212,46 @@ export default class App extends Component {
     }
   };
 
+  cropper =  ()=>{
+    ImagePicker.openCropper({
+        path: this.state.image.uri,
+        freeStyleCropEnabled: true,
+        enableRotationGesture: true,
+        compressImageQuality: 1,
+        includeBase64: true,
+        cropperToolbarTitle	: `Crop the ${this.state.type}`,
+        cropperActiveWidgetColor: '#2DBDBD'
+    }).then((image)=>{
+
+
+        if(this.state.type === 'Diplome'){
+            this.setState({croppedImage: image})
+
+            this.setState({step: 3})
+            console.log(this.state.step);
+        }else if(this.state.type === 'Datamatrix'){
+            this.setState({croppedBarcode: image})
+            // navigation.navigate('barcodeView')
+        }
+
+    }).catch((err)=>{
+        if(props.type === 'Diplome'){
+            this.setState({step: 2})
+
+        }else if(props.type === 'Datamatrix'){
+            navigation.navigate('barcodeScanner')
+        }
+    })
+}
+
+  annuler = ()=>{
+    if(this.state.type === 'Diplome'){
+      this.setState({step: 2})
+    }else {
+      this.setState({step: 4})
+    }
+}
+
 
 
   async take_picture() {
@@ -217,15 +263,13 @@ export default class App extends Component {
 
     if (this.camera) {
       if(this.state.step==2){
-
-        this.setState({now:true})
-        const options = { quality: 1, base64: true,doNotSave:true,pauseAfterCapture:true };
+        const options = { quality: 1,pauseAfterCapture:true, base64: true };
         const data = await this.camera.takePictureAsync(options);
         let base64_img="data:image/jpg;base64,"+data.base64
         this.setState({imageSrc:base64_img})
+        this.setState({image: data})
+        this.cropper()
         Toast.show("image capturée ...")
-        console.log("image capturée ...1 ")
-
       }
       if(this.state.step==3){
 
@@ -541,6 +585,37 @@ export default class App extends Component {
 
           />
           }
+          
+          {this.state.step === 3 &&
+                <View style={{height: '100%'.height,width: Dimensions.get('window').width, backgroundColor: 'black'}}>
+                        <View style={{height: '90%', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
+                        <Image
+                        style={{ aspectRatio: this.state.type == 'Diplome' ? this.state.croppedImage.cropRect.width / this.state.croppedImage.cropRect.height : this.state.croppedBarcode.cropRect.width / this.state.croppedBarcode.cropRect.height , width: Dimensions.get('window').width, height: undefined}}
+                        source={{ uri: this.state.type == 'Diplome' ? this.state.croppedImage.path : this.state.croppedBarcode.path }}
+                        resizeMode= 'contain'
+                        />
+                        </View>
+            
+                  <View style={{height: '10%', width:'100%',flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingLeft: 10, paddingRight: 10, backgroundColor: 'rgba(45,189,189,0.15)'}}>
+                    <TouchableOpacity onPress={()=> this.annuler()} style={{width:"40%",height:50,borderWidth:3,borderRadius:30,backgroundColor:"white",borderColor:"#2DBDBD",justifyContent:"center",alignItems:"center",flexDirection:"row"}}>
+                        <Text style={{flex:1,marginLeft:25,fontSize:19,fontWeight:"bold",color:"#2DBDBD",textAlign:"center"}}>Cancel</Text>
+                      {/* <View style={{height:"100%",aspectRatio:1,justifyContent:"center",alignItems:"center"}}>
+                        <Image source={fermerIcon} style={{resizeMode:"contain",width:"100%"}}/>
+                      </View> */}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={()=> confirm()}
+                      style={{width:"40%",height:50,borderWidth:3,borderRadius:30,backgroundColor:"#2DBDBD",borderColor:"#2DBDBD",justifyContent:"center",alignItems:"center",flexDirection:"row"}}>
+                      <Text style={{flex:1,marginLeft:25,fontSize:19,fontWeight:"bold",color:"white",textAlign:"center"}}>Validate</Text>
+                      {/* <View style={{height:"90%",aspectRatio:1,justifyContent:"center",alignItems:"center"}}>
+                        <Image source={loginIcon} style={{resizeMode:"contain",width:"70%"}}/>
+                      </View> */}
+                    </TouchableOpacity>
+                  </View>
+            
+                </View>
+              }
 
           {this.state.step==1&&
 
@@ -549,7 +624,7 @@ export default class App extends Component {
 
           }
 
-          {(this.state.step==2 || this.state.step==3) &&
+          {(this.state.step==2 || this.state.step==4) &&
 
           <SafeAreaView style={{justifyContent:'center', width:"100%"}}>
 
@@ -566,7 +641,7 @@ export default class App extends Component {
 
             }
 
-            {!this.state.disableCamera&&
+          {!this.state.disableCamera&&
             <View style={{justifyContent:"center",alignItems:"center",width: "100%", height:"90%",borderTopLeftRadius:40,borderTopRightRadius:40,overflow:"hidden"}}>
               < RNCamera
                   ref={async ref => {
@@ -620,7 +695,8 @@ export default class App extends Component {
                 <View style={{width:20,height:20,backgroundColor:"white",top:671,left:433}}/>
 
               </RNCamera>
-              {this.state.step==3&&
+
+              {this.state.step==4&&
               <View style={{width:"90%",aspectRatio: 1,backgroundColor:"transparent",borderColor:"white",borderWidth:0,borderRadius:5}}>
                 <View style={{top:0,left:0,position:"absolute",width:"30%",aspectRatio: 1,backgroundColor:"transparent",borderColor:this.state.colorqr,borderTopWidth:5,borderLeftWidth:5,borderRadius:5}}>
 
@@ -722,7 +798,7 @@ export default class App extends Component {
               <ActivityIndicator size="large" color="#00ff00"/>
               }
 
-              {this.state.now&& !this.state.loader &&
+            {this.state.now&& !this.state.loader &&
               <View style={{justifyContent:"space-around",alignItems:"center",flexDirection:"row",width:"100%"}}>
 
 
