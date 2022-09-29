@@ -250,7 +250,16 @@ export default class App extends Component {
     }else {
       this.setState({step: 4})
     }
-}
+  }
+
+  confimer = ()=>{
+    if (this.state.type === 'Diplome') {
+      this.setState({step: 4})
+      
+    } else {
+      this.setState({step: 5})
+    }
+  }
 
 
 
@@ -271,10 +280,9 @@ export default class App extends Component {
         this.cropper()
         Toast.show("image capturée ...")
       }
-      if(this.state.step==3){
+      if(this.state.step==4){
 
-        this.setState({now:true})
-        const options = { quality: 1, base64: true,doNotSave:true,pauseAfterCapture:true };
+        const options = { quality: 1, base64: true,pauseAfterCapture:true };
         const data = await this.camera.takePictureAsync(options);
         let base64_img=""+data.base64
 
@@ -283,6 +291,9 @@ export default class App extends Component {
         //console.log("------------------------1-----------------------")
         this.setState({imageSrcqr:base64_img})
         this.setState({colorqr:"white"})
+        this.setState({image: data})
+        this.cropper()
+
         Toast.show("image capturée ...")
 
 
@@ -605,7 +616,7 @@ export default class App extends Component {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      onPress={()=> confirm()}
+                      onPress={()=> this.confimer()}
                       style={{width:"40%",height:50,borderWidth:3,borderRadius:30,backgroundColor:"#2DBDBD",borderColor:"#2DBDBD",justifyContent:"center",alignItems:"center",flexDirection:"row"}}>
                       <Text style={{flex:1,marginLeft:25,fontSize:19,fontWeight:"bold",color:"white",textAlign:"center"}}>Validate</Text>
                       {/* <View style={{height:"90%",aspectRatio:1,justifyContent:"center",alignItems:"center"}}>
@@ -660,7 +671,7 @@ export default class App extends Component {
                   ratio={this.state.step==2?"4:3":"1:1"}
 
                   onBarCodeRead={(data)=>{
-                    if(this.state.colorqr=="white" && this.state.step==3){
+                    if(this.state.colorqr=="white" && this.state.step==4){
                       this.setState({colorqr:"#00ff00"})
                       Toast.show(""+data.data+"")
                       //this.take_picture()
