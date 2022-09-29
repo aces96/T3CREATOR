@@ -62,7 +62,7 @@ export default class App extends Component {
       imageSrc:'',
       imageSrcqr:'',
       disableCamera:false,
-      step:2,
+      step:0,
       nfcEnabled:true,
       permissions:false,
       tagID:'',
@@ -231,14 +231,15 @@ export default class App extends Component {
             console.log(this.state.step);
         }else if(this.state.type === 'Datamatrix'){
             this.setState({croppedBarcode: image})
+            this.setState({step: 3})
             // navigation.navigate('barcodeView')
         }
 
     }).catch((err)=>{
-        if(props.type === 'Diplome'){
+        if(this.state.type === 'Diplome'){
             this.setState({step: 2})
 
-        }else if(props.type === 'Datamatrix'){
+        }else if(this.state.type === 'Datamatrix'){
             navigation.navigate('barcodeScanner')
         }
     })
@@ -256,8 +257,9 @@ export default class App extends Component {
     if (this.state.type === 'Diplome') {
       this.setState({step: 4})
       
-    } else {
+    } else if(this.state.type === 'Datamatrix'){
       this.setState({step: 5})
+      this.setState({show_staut1: true})
     }
   }
 
@@ -292,6 +294,7 @@ export default class App extends Component {
         this.setState({imageSrcqr:base64_img})
         this.setState({colorqr:"white"})
         this.setState({image: data})
+        this.setState({type: 'Datamatrix'})
         this.cropper()
 
         Toast.show("image capturée ...")
