@@ -22,7 +22,7 @@ export default class Resultat extends Component {
 
     }
 
-    async componentDidMount(): void {
+    async componentDidMount(){
         console.log("=======")
     }
 
@@ -44,7 +44,7 @@ export default class Resultat extends Component {
 
 
 
-<View style={{height:"20%",width:"100%",justifyContent:"center",alignItems:"center"}}>
+                    <View style={{height:"20%",width:"100%",justifyContent:"center",alignItems:"center"}}>
 
                     <View  style={{width:PixelRatio.getPixelSizeForLayoutSize(60),height:PixelRatio.getPixelSizeForLayoutSize(50),
                         //backgroundColor:"#FFFFFFE1",
@@ -55,7 +55,7 @@ export default class Resultat extends Component {
                     }}>
                         <Image style={{resizeMode:"contain",width:"100%",height:"100%",backgroundColor:"transparent"}} source={require("./images/logo4.png")}/>
                     </View>
-</View>
+                </View>
 
 
                     <View style={{flex:1,backgroundColor:"white",justifyContent:"center",alignItems:"center",borderTopRightRadius:40,borderTopLeftRadius:40}}>
@@ -71,7 +71,6 @@ export default class Resultat extends Component {
                         },
                         shadowOpacity: 0.58,
                         shadowRadius: 16.00,
-
                         elevation: 15,
                     }}>
                         <View
@@ -81,18 +80,15 @@ export default class Resultat extends Component {
                             style={{width:"90%",height:"100%",
                                 // bottom:"10%",
                                 alignItems:"center",justifyContent:"center",
-
                                 //paddingBottom:10
                                 // bottom:10
                             }}>
                             {this.props?.encours&&
                             <View style={{width:"60%",height:"50%",marginBottom:20,}}>
-
                                 <Image style={{resizeMode:"contain",width:"110%",height:"110%",marginBottom:20,position:"absolute",top:"-5%",left:"-5%",opacity:0.8}} source={require("./images/gif/bgScanner.png")}/>
 
 
                                 <Image style={{resizeMode:"contain",width:"70%",height:"70%",marginBottom:20,top:"15%",left:"15%",opacity:0.6}} source={require("./images/gif/loader1.gif")}/>
-
                             </View>
                             }
 

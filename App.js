@@ -62,7 +62,7 @@ export default class App extends Component {
       imageSrc:'',
       imageSrcqr:'',
       disableCamera:false,
-      step:0,
+      step:2,
       nfcEnabled:true,
       permissions:false,
       tagID:'',
@@ -95,13 +95,15 @@ export default class App extends Component {
     //this.CheckConnection()
 
     let token=await readToken()
+
     if(token!=null){
       this.setState({step:1})
       this.requestPermission()
     }
 
+
     console.log("Token is ",token)
-    console.log("Token is organisation IS  ",token?.userData?.organizationId)
+    console.log("Token is organisation IS",token?.userData?.organizationId)
     this.setState({token})
 
 
@@ -583,7 +585,7 @@ export default class App extends Component {
 
           <Image source={require("./src/images/bgg.png")} style={{position:"absolute",height:"100%",width:"100%"}} />
 
-          {this.state.step==0&&
+          { this.state.step==0 &&
 
           <Login
               login={async (token)=>{
@@ -599,6 +601,32 @@ export default class App extends Component {
 
           />
           }
+
+        {this.state.step == 5 &&
+            <View style={{top: 0, position: "absolute", width: "100%", height: "100%", zIndex: 100}}>
+              <Resultat
+                  statutType={this.state.statutType}
+                  score={this.state.score}
+                  img={this.state.imageSrc}
+                  tagID={this.state.tagID}
+                  position={this.state.position}
+                  nfcData={this.state.nfcData}
+                  statut={this.state.statut}
+                  encours={this.state.encours}
+                  readMode={this.state.readMode}
+                  reponse={this.state.reponse}
+                  //nfcData={this.state.nfcData}
+                  annuler={() => {
+                    this.setState({show_staut1: false})
+                    this.rescanNFC()
+                    this.setState({loader:false})
+                  }}
+
+                  rep={async (code)=>{await Valider(code,this.state.reponse,this)}}
+
+              />
+            </View>
+            }
           
           {this.state.step === 3 &&
                 <View style={{height: '100%'.height,width: Dimensions.get('window').width, backgroundColor: 'black'}}>
@@ -660,10 +688,7 @@ export default class App extends Component {
               < RNCamera
                   ref={async ref => {
                     this.camera = ref;
-                    //let v=await  this.camera.getSupportedRatiosAsync()
-                    //console.log(v)
-                  }}
-
+                }}
                   onCameraReady={this.PrepareRatio}
 
                   autoFocusPointOfInterest={{x: 0.5, y: 0.5}}
@@ -747,31 +772,7 @@ export default class App extends Component {
 
 
 
-            {this.state.show_staut1 &&
-            <View style={{top: 0, position: "absolute", width: "100%", height: "100%", zIndex: 100}}>
-              <Resultat
-                  statutType={this.state.statutType}
-                  score={this.state.score}
-                  img={this.state.imageSrc}
-                  tagID={this.state.tagID}
-                  position={this.state.position}
-                  nfcData={this.state.nfcData}
-                  statut={this.state.statut}
-                  encours={this.state.encours}
-                  readMode={this.state.readMode}
-                  reponse={this.state.reponse}
-                  //nfcData={this.state.nfcData}
-                  annuler={() => {
-                    this.setState({show_staut1: false})
-                    this.rescanNFC()
-                    this.setState({loader:false})
-                  }}
 
-                  rep={async (code)=>{await Valider(code,this.state.reponse,this)}}
-
-              />
-            </View>
-            }
             {this.state.show_staut0 &&
             <View style={{top: 0, position: "absolute", width: "100%", height: "100%", zIndex: 100}}>
               <StatutAlert0
@@ -821,7 +822,7 @@ export default class App extends Component {
                   this.setState({disableCamera:false})
                   this.camera.resumePreview()
                 }}
-                                   style={{width:"40%",height:50,borderWidth:2,borderRadius:30,borderColor:"#2DBDBD",justifyContent:"center",alignItems:"center",flexDirection:"row"
+                  style={{width:"40%",height:50,borderWidth:2,borderRadius:30,borderColor:"#2DBDBD",justifyContent:"center",alignItems:"center",flexDirection:"row"
                   ,backgroundColor:"white"
                 }}>
                   <Text style={{flex:1,marginLeft:25,fontSize:17,fontWeight:"bold",color:"#2DBDBD",textAlign:"center"}}>Annuler</Text>
