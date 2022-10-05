@@ -1,7 +1,5 @@
 import {Text, TouchableOpacity, View, Image, PixelRatio, ActivityIndicator,StatusBar,BackHandler,ScrollView} from 'react-native';
 import React, {Component} from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import Toast from 'react-native-simple-toast';
 import NfcManager, {Ndef, NfcTech} from 'react-native-nfc-manager';
 
 

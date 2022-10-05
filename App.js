@@ -43,7 +43,6 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 const secretKey="Sens2022Things"
 
-//FIXER L'ORIENTATION DE L'APPLICATION
 
 export default class App extends Component {
 
@@ -121,7 +120,14 @@ export default class App extends Component {
     return connected
   }
 
+  componentDidUpdate(prevProps, prevState){
 
+    if(this.state.step === 5){
+      CheckAuth(this.state.tagID, this.state.position, this.state.croppedImage, this.state.uuid,this.state.croppedBarcode, this.state.token.userData.organizationId, this)
+      console.log('here is the step 5');
+    }
+
+  }
   crypt(txt){
     // Encrypt
     let ciphertext = CryptoJS.AES.encrypt(txt, secretKey).toString();
@@ -284,7 +290,7 @@ export default class App extends Component {
         this.cropper()
         Toast.show("image capturée ...")
       }
-      if(this.state.step==4){
+      if(this.state.step == 4){
 
         const options = { quality: 1, base64: true,pauseAfterCapture:true };
         const data = await this.camera.takePictureAsync(options);

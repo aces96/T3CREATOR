@@ -2,19 +2,20 @@ import {readToken, saveToken} from './storage';
 
 const axios = require('axios').default;
 
-const link="http://192.168.137.1/api/v1/createdip"
+const link="https://hrd.sensthings.io/api/v1/createdip"
 const link2="http://192.168.137.1/api/v1/validdip"
 
 import Toast from 'react-native-simple-toast';
 
-export const CheckAuth=  async function (metagid,position,image,nfcData,uuid,imageSrcqr,organizationId,self) {
+export const CheckAuth=  async function (metagid,position,image,uuid,imageSrcqr,organizationId) {
     Toast.show("Verification en cours ...")
     console.log("Verification en cours ...")
-    self.setState({now:false})
-    self.setState({encours:true})
+    // self.setState({now:false})
+    // self.setState({encours:true})
 
-    let data={metagid: metagid,position:position,image:JSON.stringify(image.slice(22)),nfcData:nfcData,uuid:uuid,imageqr:imageSrcqr,organizationId:organizationId}
-    await axios.post(link, data,{timeout:5000,validateStatus: function (status) {
+    let data={metagid: metagid,position:position,image: image.data,uuid:uuid,imageqr:imageSrcqr.data,organizationId:organizationId}
+    console.log('daaaaata', data);
+    await axios.post(link, data,{timeout:50000,validateStatus: function (status) {
             return status >= 200 && status < 300 || status==500
         }})
         .then(function (response) {
@@ -26,21 +27,15 @@ export const CheckAuth=  async function (metagid,position,image,nfcData,uuid,ima
                 if(response.status==500){
                     Toast.show("Une erreur est survenue, verifier votre connexion")
                     console.log("Connexion echouée 1 response?.data : 1")
-                    self.setStatut1("Connexion échouée")
+                    // self.setStatut1("Connexion échouée")
                     return
                 }else{
-                    self.setStatut(response?.data)
+                    // self.setStatut(response?.data)
                     console.log("response?.data : ",response?.data)
-
                     console.log("type of response?.data : ",typeof response?.data)
-
                     console.log("response?.data  code : ",response?.data.code)
                     console.log("response?.data  Data : ",response?.data.data)
                     console.log("response?.data  Year : ",response?.data.data.Year)
-
-
-
-
                 }
                 /*
                 let res = response.data
@@ -76,11 +71,11 @@ export const CheckAuth=  async function (metagid,position,image,nfcData,uuid,ima
         })
         .catch(function (error) {
             Toast.show("Une erreur est survenue, verifier votre connexion")
-            self.setStatut1("Connexion échouée")
+            // self.setStatut1("Connexion échouée")
             //return
             console.log(error);
             console.log("erreur = ", error.toString());
-           Toast.show("Une erreur est survenue, verifier votre connexion")
+        Toast.show("Une erreur est survenue, verifier votre connexion")
         })
         .then(function () {
             // always executed
@@ -91,12 +86,11 @@ export const Auth=  async (email,password,self)=>
 {
     var auth=false
     let link="http://app.sensthings.io/api/v1/ua/auth/login"
-    //let data={"email":"ua@t3.com","password":"123"}
     let data={email:email,password:password}
     console.log("data recu : ",data)
 
 
-     await axios.post(link, data,{timeout:5000,validateStatus: function (status) {
+    await axios.post(link, data,{timeout:5000,validateStatus: function (status) {
             return status >= 200 && status < 300 || status==500
         }})
         .then(async function (response) {
@@ -116,20 +110,15 @@ export const Auth=  async (email,password,self)=>
                     self.setState({token:response?.data?.data})
                     await saveToken(JSON.stringify(response?.data?.data))
                     return auth
-
                     //if(response?.data?.data?.accessToken?.length>0){}
-
                 }
-
             }catch(Exception){
                 console.log("erreur = ", Exception);
             }
-
         })
         .catch(function (error) {
             console.log("error", error)
             Toast.show("Une erreur est survenue, verifier votre connexion")
-
         })
         .then(function () {
             // always executed
